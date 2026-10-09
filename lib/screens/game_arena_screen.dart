@@ -156,34 +156,65 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
       context: context,
       backgroundColor: GameTheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
       builder: (_) {
         final sorted = List<Player>.from(players)
           ..sort((a, b) => b.score.compareTo(a.score));
 
         return Container(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+          decoration: const BoxDecoration(
+            color: GameTheme.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+            border: Border(
+              top: BorderSide(color: GameTheme.scoreAmber, width: 2),
+            ),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              // Header with warm yellow & orange glow
+              Row(
                 children: [
-                  Icon(Icons.leaderboard_rounded, color: GameTheme.neonAmber, size: 24),
-                  SizedBox(width: 10),
-                  Text(
-                    'PARTY SCOREBOARD',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      color: Colors.white,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: GameTheme.scoreGradient,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: GameTheme.scoreOrange.withValues(alpha: 0.5),
+                          blurRadius: 12,
+                        ),
+                      ],
                     ),
+                    child: const Icon(Icons.emoji_events_rounded, color: Colors.black87, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'LEADERBOARD & SCORES',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'Live player points & forfeit strikes',
+                        style: TextStyle(fontSize: 11, color: GameTheme.scoreLightYellow),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
+
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
@@ -191,7 +222,8 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                   separatorBuilder: (context, index) => const Divider(color: Colors.white10),
                   itemBuilder: (context, index) {
                     final p = sorted[index];
-                    final rankIcon = index == 0
+                    final isFirst = index == 0 && p.score > 0;
+                    final rankText = index == 0
                         ? '🥇'
                         : index == 1
                             ? '🥈'
@@ -199,51 +231,77 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                                 ? '🥉'
                                 : '#${index + 1}';
 
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                      decoration: isFirst
+                          ? BoxDecoration(
+                              color: GameTheme.scoreOrange.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: GameTheme.scoreAmber.withValues(alpha: 0.4)),
+                            )
+                          : null,
+                      child: Row(
                         children: [
-                          Text(rankIcon, style: const TextStyle(fontSize: 18)),
-                          const SizedBox(width: 8),
+                          Text(rankText, style: const TextStyle(fontSize: 18)),
+                          const SizedBox(width: 10),
                           PlayerAvatar(player: p, size: 38, showName: false),
-                        ],
-                      ),
-                      title: Text(
-                        p.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              p.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          // Light Yellow & Orange Mix Score Badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: GameTheme.neonGreen.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFFFEF08A), // Light yellow
+                                  Color(0xFFFBBF24), // Golden amber
+                                  Color(0xFFF97316), // Warm orange
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: GameTheme.scoreOrange.withValues(alpha: 0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Text(
                               '★ ${p.score} pts',
                               style: const TextStyle(
-                                color: GameTheme.neonGreen,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                                color: Color(0xFF451A03), // Deep warm brown for crisp contrast on yellow/orange
+                                fontWeight: FontWeight.w900,
+                                fontSize: 12.5,
                               ),
                             ),
                           ),
                           const SizedBox(width: 8),
+                          // Decent Forfeits indicator
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                             decoration: BoxDecoration(
-                              color: GameTheme.neonAmber.withValues(alpha: 0.15),
+                              color: GameTheme.surfaceElevated,
                               borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white12),
                             ),
                             child: Text(
-                              '⚡ ${p.penalties} forfeits',
+                              '⚡ ${p.penalties}',
                               style: const TextStyle(
-                                color: GameTheme.neonAmber,
+                                color: GameTheme.scoreLightYellow,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontSize: 11.5,
                               ),
                             ),
                           ),
@@ -681,13 +739,27 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
         Container(
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: GameTheme.surfaceElevated,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white12),
+            gradient: LinearGradient(
+              colors: [
+                GameTheme.surfaceElevated,
+                Color.alphaBlend(GameTheme.scoreOrange.withValues(alpha: 0.15), GameTheme.surfaceElevated),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: GameTheme.scoreAmber.withValues(alpha: 0.5), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: GameTheme.scoreOrange.withValues(alpha: 0.2),
+                blurRadius: 18,
+                spreadRadius: 1,
+              ),
+            ],
           ),
           child: Column(
             children: [
-              const Text('✨', style: TextStyle(fontSize: 44)),
+              const Text('🏆', style: TextStyle(fontSize: 44)),
               const SizedBox(height: 8),
               Text(
                 'Round ${room.roundNumber} Finished!',
@@ -697,15 +769,44 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               if (activePlayer != null)
-                Text(
-                  '${activePlayer.name} has ${activePlayer.score} Points and ${activePlayer.penalties} Forfeit Strikes',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: GameTheme.textSecondary,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        gradient: GameTheme.scoreGradient,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '★ ${activePlayer.score} Points',
+                        style: const TextStyle(
+                          color: Color(0xFF451A03),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: GameTheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: GameTheme.scoreAmber.withValues(alpha: 0.4)),
+                      ),
+                      child: Text(
+                        '⚡ ${activePlayer.penalties} Forfeits',
+                        style: const TextStyle(
+                          color: GameTheme.scoreLightYellow,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
             ],
           ),

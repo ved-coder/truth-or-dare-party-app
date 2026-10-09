@@ -3,6 +3,7 @@ import '../models/player_model.dart';
 import '../models/prompt_model.dart';
 import '../services/game_manager.dart';
 import '../theme/game_theme.dart';
+import '../widgets/ambient_background.dart';
 import '../widgets/neon_button.dart';
 import '../widgets/firebase_guide_modal.dart';
 import 'lobby_screen.dart';
@@ -150,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         backgroundColor: GameTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
-          side: const BorderSide(color: GameTheme.neonCyan, width: 1.5),
+          side: const BorderSide(color: GameTheme.primaryPurple, width: 1.5),
         ),
         title: const Text(
           'Enter Room Code',
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 4,
-                color: GameTheme.neonCyan,
+                color: GameTheme.neonLavender,
               ),
               decoration: InputDecoration(
                 hintText: 'e.g. 7X9K2M',
@@ -195,7 +196,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           NeonButton(
             text: 'Join Lobby',
             isFullWidth: false,
-            primaryColor: GameTheme.neonCyan,
+            primaryColor: GameTheme.royalPurple,
+            secondaryColor: GameTheme.primaryPurple,
             onPressed: () {
               final code = _roomCodeController.text;
               Navigator.pop(context);
@@ -241,10 +243,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isSelected ? GameTheme.neonPurple.withValues(alpha: 0.3) : GameTheme.surfaceElevated,
+                        color: isSelected ? GameTheme.primaryPurple.withValues(alpha: 0.3) : GameTheme.surfaceElevated,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isSelected ? GameTheme.neonPurple : Colors.transparent,
+                          color: isSelected ? GameTheme.primaryPurple : Colors.transparent,
                           width: 2,
                         ),
                       ),
@@ -283,6 +285,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               const SizedBox(height: 20),
               NeonButton(
                 text: 'Save Avatar',
+                primaryColor: GameTheme.royalPurple,
                 onPressed: () {
                   _updateProfile();
                   Navigator.pop(context);
@@ -300,284 +303,295 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final isFirebase = GameManager().isFirebaseActive;
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Top Bar with Firebase Status Pill
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: GameTheme.surfaceElevated,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('🎯', style: TextStyle(fontSize: 12)),
-                        SizedBox(width: 6),
-                        Text(
-                          'MULTIPLAYER',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Firebase Status Badge (Clickable for setup guide)
-                  GestureDetector(
-                    onTap: () => FirebaseGuideModal.show(context, isConnected: isFirebase),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      backgroundColor: GameTheme.pureBlack,
+      body: AmbientBackground(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Top Bar with Firebase Status Pill
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
-                        color: (isFirebase ? GameTheme.neonGreen : GameTheme.neonAmber).withValues(alpha: 0.15),
+                        color: GameTheme.surface.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isFirebase ? GameTheme.neonGreen : GameTheme.neonAmber,
-                          width: 1,
-                        ),
+                        border: Border.all(color: GameTheme.primaryPurple.withValues(alpha: 0.3)),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            isFirebase ? Icons.cloud_done : Icons.cloud_queue,
-                            size: 14,
-                            color: isFirebase ? GameTheme.neonGreen : GameTheme.neonAmber,
-                          ),
-                          const SizedBox(width: 6),
+                          Text('✨', style: TextStyle(fontSize: 12)),
+                          SizedBox(width: 6),
                           Text(
-                            isFirebase ? 'Firebase Live' : 'Demo Mode (Setup Guide)',
+                            'PARTY ARENA',
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: isFirebase ? GameTheme.neonGreen : GameTheme.neonAmber,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.5,
+                              color: GameTheme.neonLavender,
                             ),
                           ),
                         ],
                       ),
                     ),
+
+                    // Firebase Status Badge (Clickable for setup guide)
+                    GestureDetector(
+                      onTap: () => FirebaseGuideModal.show(context, isConnected: isFirebase),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: (isFirebase ? GameTheme.neonGreen : GameTheme.scoreAmber).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isFirebase ? GameTheme.neonGreen : GameTheme.scoreAmber,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isFirebase ? Icons.cloud_done_rounded : Icons.cloud_queue_rounded,
+                              size: 14,
+                              color: isFirebase ? GameTheme.neonGreen : GameTheme.scoreAmber,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isFirebase ? 'Firebase Live' : 'Demo Mode (Guide)',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isFirebase ? GameTheme.neonGreen : GameTheme.scoreAmber,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 28),
+
+                // Exciting Hero Title with Purple & Black Glow
+                AnimatedBuilder(
+                  animation: _glowAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: GameTheme.royalPurple.withValues(alpha: _glowAnimation.value * 0.45),
+                            blurRadius: 36,
+                            spreadRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: child,
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'TRUTH ',
+                              style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 2.5,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'OR ',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                color: GameTheme.neonLavender,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'DARE',
+                              style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w900,
+                                color: GameTheme.primaryPurple,
+                                letterSpacing: 2.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: GameTheme.surfaceElevated.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: GameTheme.primaryPurple.withValues(alpha: 0.3)),
+                        ),
+                        child: const Text(
+                          'MULTIPLAYER SPIN WHEEL GAME',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2.2,
+                            color: GameTheme.softLilac,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 28),
-
-              // Glowing Hero Title
-              AnimatedBuilder(
-                animation: _glowAnimation,
-                builder: (context, child) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: GameTheme.neonPink.withValues(alpha: _glowAnimation.value * 0.4),
-                          blurRadius: 30,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: child,
-                  );
-                },
-                child: Column(
-                  children: [
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'TRUTH ',
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w900,
-                              color: GameTheme.neonCyan,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          TextSpan(
-                            text: 'OR ',
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white54,
-                            ),
-                          ),
-                          TextSpan(
-                            text: 'DARE',
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w900,
-                              color: GameTheme.neonPink,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'THE ULTIMATE PARTY SPIN ARENA',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2.5,
-                        color: GameTheme.textSecondary,
-                      ),
-                    ),
-                  ],
                 ),
-              ),
 
-              const SizedBox(height: 28),
+                const SizedBox(height: 28),
 
-              // Player Card Box
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: GameTheme.glassBox(borderColor: GameTheme.neonPurple),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: _showAvatarPicker,
-                          child: Stack(
-                            alignment: Alignment.bottomRight,
-                            children: [
-                              Container(
-                                width: 62,
-                                height: 62,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Color(_selectedColorValue),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(_selectedColorValue).withValues(alpha: 0.6),
-                                      blurRadius: 12,
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Text(_selectedEmoji, style: const TextStyle(fontSize: 30)),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.edit, size: 12, color: Colors.black),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'YOUR PLAYER NAME',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: GameTheme.textSecondary,
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              TextField(
-                                controller: _nameController,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(vertical: 4),
-                                  border: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: GameTheme.neonPurple),
+                // Player Profile Box (Black & Purple Glass)
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: GameTheme.purpleGlassBox(),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: _showAvatarPicker,
+                        child: Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(_selectedColorValue),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(_selectedColorValue).withValues(alpha: 0.6),
+                                    blurRadius: 14,
                                   ),
-                                  hintText: 'Enter your name...',
-                                  hintStyle: TextStyle(color: Colors.white38),
-                                ),
-                                onSubmitted: (_) => _updateProfile(),
+                                ],
                               ),
-                            ],
-                          ),
+                              child: Center(
+                                child: Text(_selectedEmoji, style: const TextStyle(fontSize: 28)),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.edit, size: 12, color: Colors.black87),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'YOUR NICKNAME',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: GameTheme.textSecondary,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: _nameController,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(vertical: 4),
+                                border: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: GameTheme.primaryPurple),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: GameTheme.neonLavender, width: 2),
+                                ),
+                                hintText: 'Enter nickname...',
+                                hintStyle: TextStyle(color: Colors.white30),
+                              ),
+                              onSubmitted: (_) => _updateProfile(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
-              // Action Buttons
-              NeonButton(
-                text: 'Create Party Room',
-                icon: Icons.add_to_photos_rounded,
-                primaryColor: GameTheme.neonPurple,
-                secondaryColor: const Color(0xFF6366F1),
-                isLoading: _isLoading,
-                onPressed: _createRoom,
-              ),
-
-              const SizedBox(height: 14),
-
-              NeonButton(
-                text: 'Join Room with Code',
-                icon: Icons.meeting_room_rounded,
-                primaryColor: GameTheme.neonCyan,
-                secondaryColor: const Color(0xFF0284C7),
-                isLoading: _isLoading,
-                onPressed: _showJoinRoomDialog,
-              ),
-
-              const SizedBox(height: 28),
-
-              // Quick Feature Highlights
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: GameTheme.surfaceElevated.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white10),
+                // Exciting Action Buttons (Purple & Black)
+                NeonButton(
+                  text: 'Create Party Room',
+                  icon: Icons.add_circle_outline_rounded,
+                  primaryColor: GameTheme.royalPurple,
+                  secondaryColor: GameTheme.primaryPurple,
+                  isLoading: _isLoading,
+                  onPressed: _createRoom,
                 ),
-                child: Column(
-                  children: [
-                    _buildFeatureItem(
-                      '🎡 Synchronized Spin Wheel',
-                      'Watch the neon roulette wheel spin simultaneously across all players\' devices.',
-                    ),
-                    const Divider(color: Colors.white10, height: 20),
-                    _buildFeatureItem(
-                      '🔥 150+ Dynamic Truths & Dares',
-                      'Filtered by Mild, Spicy, and Extreme wild party categories.',
-                    ),
-                    const Divider(color: Colors.white10, height: 20),
-                    _buildFeatureItem(
-                      '✍️ Custom Player Cards & Voting',
-                      'Submit your own challenges and let the group vote on who passed!',
-                    ),
-                  ],
+
+                const SizedBox(height: 12),
+
+                NeonButton(
+                  text: 'Join Room with Code',
+                  icon: Icons.meeting_room_outlined,
+                  primaryColor: const Color(0xFF1F173B),
+                  secondaryColor: const Color(0xFF2E2256),
+                  isLoading: _isLoading,
+                  onPressed: _showJoinRoomDialog,
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 24),
+
+                // Clean Mini Features Overview
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: GameTheme.surface.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildFeatureItem(
+                        '🎡 Synchronized Roulette Wheel',
+                        'Real-time physical spin synchronized across everyone\'s phones.',
+                      ),
+                      const Divider(color: Colors.white10, height: 18),
+                      _buildFeatureItem(
+                        '🔥 150+ Truths & Dares',
+                        'Curated party prompts from Mild icebreakers to Wild challenges.',
+                      ),
+                      const Divider(color: Colors.white10, height: 18),
+                      _buildFeatureItem(
+                        '⚡ Forfeit Strikes & Live Scores',
+                        'Friendly party competition with instant round celebrations.',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
