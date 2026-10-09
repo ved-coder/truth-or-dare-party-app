@@ -258,10 +258,16 @@ class FirebaseGameService implements GameService {
     if (!snapshot.exists || snapshot.data() == null) return;
 
     final room = GameRoom.fromMap(snapshot.data()!);
+    final usedIds = {
+      ...room.roundsHistory.map((r) => r.promptId).whereType<String>(),
+      if (room.currentPrompt?.id != null) room.currentPrompt!.id,
+    };
+
     final prompt = PromptRepository.getRandomPrompt(
       type: type,
       intensity: room.intensityLevel,
       customPrompts: room.customPrompts,
+      excludeIds: usedIds,
     );
 
     final turnPlayerId = room.currentTurnPlayerId;

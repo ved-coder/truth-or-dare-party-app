@@ -214,10 +214,16 @@ class LocalSimService implements GameService {
     final room = _activeRooms[code];
     if (room == null) return;
 
+    final usedIds = {
+      ...room.roundsHistory.map((r) => r.promptId).whereType<String>(),
+      if (room.currentPrompt?.id != null) room.currentPrompt!.id,
+    };
+
     final prompt = PromptRepository.getRandomPrompt(
       type: type,
       intensity: room.intensityLevel,
       customPrompts: room.customPrompts,
+      excludeIds: usedIds,
     );
 
     final updatedPlayers = Map<String, Player>.from(room.players);

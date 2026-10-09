@@ -22,10 +22,10 @@ class SpinWheelWidget extends StatefulWidget {
   });
 
   @override
-  State<SpinWheelWidget> createState() => _SpinWheelWidgetState();
+  SpinWheelWidgetState createState() => SpinWheelWidgetState();
 }
 
-class _SpinWheelWidgetState extends State<SpinWheelWidget>
+class SpinWheelWidgetState extends State<SpinWheelWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _animation;
@@ -169,36 +169,40 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
     final players = _effectivePlayers;
 
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 290,
-            height: 310,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Rotating Wheel Canvas (Matching PDF 4-Color Slices)
-                Transform.rotate(
-                  angle: _currentRotation,
-                  child: CustomPaint(
-                    size: const Size(270, 270),
-                    painter: _WheelPainter(players: players),
+      child: GestureDetector(
+        onTap: widget.isHost ? triggerSpin : null,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 290,
+              height: 310,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Rotating Wheel Canvas (Matching PDF 4-Color Slices)
+                  Transform.rotate(
+                    angle: _currentRotation,
+                    child: CustomPaint(
+                      size: const Size(270, 270),
+                      painter: _WheelPainter(players: players),
+                    ),
                   ),
-                ),
 
-                // Pink Triangle Pointer at top center (12 o'clock) matching PDF
-                Positioned(
-                  top: 4,
-                  child: CustomPaint(
-                    size: const Size(20, 16),
-                    painter: _PdfPinkPointerPainter(),
+                  // Pink Triangle Pointer at top center (12 o'clock) matching PDF
+                  Positioned(
+                    top: 4,
+                    child: CustomPaint(
+                      size: const Size(20, 16),
+                      painter: _PdfPinkPointerPainter(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -23,6 +23,7 @@ class GameArenaScreen extends StatefulWidget {
 }
 
 class _GameArenaScreenState extends State<GameArenaScreen> {
+  final GlobalKey<SpinWheelWidgetState> _spinWheelKey = GlobalKey<SpinWheelWidgetState>();
   late ConfettiController _confettiController;
   Player? _locallyLandedPlayer;
   bool _navigatingBack = false;
@@ -146,7 +147,7 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                     });
                   }
 
-                  final isHost = currentP?.id == room.hostId;
+                  final isHost = currentP == null || currentP.id == room.hostId || room.hostId.isEmpty;
                   final activePlayer = _locallyLandedPlayer ?? room.currentTurnPlayer;
                   final isMyTurn = currentP?.id == activePlayer?.id;
 
@@ -318,6 +319,7 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
           child: Column(
             children: [
               SpinWheelWidget(
+                key: _spinWheelKey,
                 players: room.playerList,
                 isHost: isHost,
                 targetAngle: room.spinTargetAngle,
@@ -328,13 +330,31 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
 
               const SizedBox(height: 36),
 
-              const Text(
-                'Waiting for host to spin...',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: GameTheme.textSecondary,
+              if (isHost) ...[
+                NeonButton(
+                  text: 'SPIN THE WHEEL',
+                  primaryColor: GameTheme.neonPink,
+                  onPressed: () {
+                    _spinWheelKey.currentState?.triggerSpin();
+                  },
                 ),
-              ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Tap the button or wheel to spin!',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: GameTheme.neonLavender,
+                  ),
+                ),
+              ] else ...[
+                const Text(
+                  'Waiting for host to spin...',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: GameTheme.textSecondary,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

@@ -62,6 +62,90 @@ class PromptRepository {
       intensity: IntensityLevel.mild,
       category: 'Survival',
     ),
+    const PromptItem(
+      id: 't_m_9',
+      text: 'What is the last silly thing you Googled late at night?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Search History',
+    ),
+    const PromptItem(
+      id: 't_m_10',
+      text: 'Have you ever pretended to like a gift you actually hated? What was it?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Awkward',
+    ),
+    const PromptItem(
+      id: 't_m_11',
+      text: 'What is a weird habit you have when you think nobody is watching?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Weird Habits',
+    ),
+    const PromptItem(
+      id: 't_m_12',
+      text: 'What is the most embarrassing song in your favorite playlist?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Music',
+    ),
+    const PromptItem(
+      id: 't_m_13',
+      text: 'What was your most awkward moment in school or at work?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Awkward',
+    ),
+    const PromptItem(
+      id: 't_m_14',
+      text: 'Have you ever blamed a pet or someone else for a mistake you made?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Blunders',
+    ),
+    const PromptItem(
+      id: 't_m_15',
+      text: 'What is your absolute biggest pet peeve about people in general?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Pet Peeves',
+    ),
+    const PromptItem(
+      id: 't_m_16',
+      text: 'Have you ever waved back at someone who was actually waving at someone behind you?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Awkward',
+    ),
+    const PromptItem(
+      id: 't_m_17',
+      text: 'What is a secret talent or weird skill you have that nobody knows about?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Talents',
+    ),
+    const PromptItem(
+      id: 't_m_18',
+      text: 'If you could erase one embarrassing memory from your past, what would it be?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Memories',
+    ),
+    const PromptItem(
+      id: 't_m_19',
+      text: 'What is the longest time you went without showering or washing your hair?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Secrets',
+    ),
+    const PromptItem(
+      id: 't_m_20',
+      text: 'If you could only eat one meal for the rest of your life, what would it be?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.mild,
+      category: 'Food',
+    ),
 
     // --- TRUTHS: SPICY ---
     const PromptItem(
@@ -115,10 +199,94 @@ class PromptRepository {
     ),
     const PromptItem(
       id: 't_s_8',
-      text: 'What is something you did in school that you never got caught for?',
+      text: 'What is something you did in school or work that you never got caught for?',
       type: PromptType.truth,
       intensity: IntensityLevel.spicy,
       category: 'Rebel',
+    ),
+    const PromptItem(
+      id: 't_s_9',
+      text: 'Have you ever had a crush on a friend’s sibling or partner?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Crushes',
+    ),
+    const PromptItem(
+      id: 't_s_10',
+      text: 'What is the most petty reason you ended a relationship or friendship?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Petty',
+    ),
+    const PromptItem(
+      id: 't_s_11',
+      text: 'Have you ever sent a text message to the wrong person and got caught? What did it say?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Fail',
+    ),
+    const PromptItem(
+      id: 't_s_12',
+      text: 'What is one trait about yourself that you secretly wish you could change?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Self',
+    ),
+    const PromptItem(
+      id: 't_s_13',
+      text: 'If you could read the mind of one person in this room right now, who would it be and why?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Curiosity',
+    ),
+    const PromptItem(
+      id: 't_s_14',
+      text: 'What is the biggest lie you have ever told with a straight face?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Lies',
+    ),
+    const PromptItem(
+      id: 't_s_15',
+      text: 'Have you ever ghosted someone? Why did you do it?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Relationships',
+    ),
+    const PromptItem(
+      id: 't_s_16',
+      text: 'What is an unwritten rule you secretly break all the time?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Rebel',
+    ),
+    const PromptItem(
+      id: 't_s_17',
+      text: 'What is the most expensive thing you bought and immediately regretted?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Regrets',
+    ),
+    const PromptItem(
+      id: 't_s_18',
+      text: 'Have you ever overheard people talking about you? What did they say?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Drama',
+    ),
+    const PromptItem(
+      id: 't_s_19',
+      text: 'Who in this room would you trust with your deepest secret?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Trust',
+    ),
+    const PromptItem(
+      id: 't_s_20',
+      text: 'What is the most rebellious thing you have ever done on a dare or impulse?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.spicy,
+      category: 'Impulse',
     ),
 
     // --- TRUTHS: EXTREME ---
@@ -152,10 +320,80 @@ class PromptRepository {
     ),
     const PromptItem(
       id: 't_e_5',
-      text: 'What is the deepest secret you have kept from your parents?',
+      text: 'What is the deepest secret you have kept from your family or parents?',
       type: PromptType.truth,
       intensity: IntensityLevel.extreme,
       category: 'Secrets',
+    ),
+    const PromptItem(
+      id: 't_e_6',
+      text: 'Reveal the last person you searched for on Instagram, Snapchat, or Facebook!',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Exposed',
+    ),
+    const PromptItem(
+      id: 't_e_7',
+      text: 'Show the last photo in your camera roll right now—no skipping or deleting!',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Exposed',
+    ),
+    const PromptItem(
+      id: 't_e_8',
+      text: 'What is a secret about yourself that you have NEVER told anyone in this room?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Deep Secrets',
+    ),
+    const PromptItem(
+      id: 't_e_9',
+      text: 'Have you ever lied during a game of Truth or Dare? What was the lie?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Exposed',
+    ),
+    const PromptItem(
+      id: 't_e_10',
+      text: 'What is the most embarrassing note, draft, or screenshot saved on your phone?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Exposed',
+    ),
+    const PromptItem(
+      id: 't_e_11',
+      text: 'If everyone in this room was stranded on a desert island, who would be voted off first?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Survival',
+    ),
+    const PromptItem(
+      id: 't_e_12',
+      text: 'What is the harshest truth someone has ever told you about yourself that was actually true?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Reality Check',
+    ),
+    const PromptItem(
+      id: 't_e_13',
+      text: 'What is a toxic trait you know you have, but haven\'t fixed yet?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Self',
+    ),
+    const PromptItem(
+      id: 't_e_14',
+      text: 'What is the most illegal or rule-breaking thing you have ever done?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Danger Zone',
+    ),
+    const PromptItem(
+      id: 't_e_15',
+      text: 'What is your biggest regret in your personal life so far?',
+      type: PromptType.truth,
+      intensity: IntensityLevel.extreme,
+      category: 'Regrets',
     ),
 
     // --- DARES: MILD ---
@@ -201,6 +439,104 @@ class PromptRepository {
       intensity: IntensityLevel.mild,
       category: 'Voice',
     ),
+    const PromptItem(
+      id: 'd_m_7',
+      text: 'Speak only in whispers until the next round starts.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Voice',
+    ),
+    const PromptItem(
+      id: 'd_m_8',
+      text: 'Perform a 30-second dramatic commercial for your left shoe.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Acting',
+    ),
+    const PromptItem(
+      id: 'd_m_9',
+      text: 'Walk like a crab across the room and back while making chicken noises.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Physical',
+    ),
+    const PromptItem(
+      id: 'd_m_10',
+      text: 'Try to make the player on your right laugh without touching them or speaking.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Impression',
+    ),
+    const PromptItem(
+      id: 'd_m_11',
+      text: 'Let someone draw a funny mustache or smiley on your arm with a pen.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Styling',
+    ),
+    const PromptItem(
+      id: 'd_m_12',
+      text: 'Recite a passionate dramatic poem about melted cheese!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Performance',
+    ),
+    const PromptItem(
+      id: 'd_m_13',
+      text: 'Spin around 5 times in a circle and attempt to walk a straight line across the room.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Physical',
+    ),
+    const PromptItem(
+      id: 'd_m_14',
+      text: 'Act like a robot whose battery is slowly draining over the next 45 seconds.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Acting',
+    ),
+    const PromptItem(
+      id: 'd_m_15',
+      text: 'Hold an imaginary microphone and interview the player across from you like a talk show host.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Performance',
+    ),
+    const PromptItem(
+      id: 'd_m_16',
+      text: 'Do your best opera singing voice to ask someone to pass you a glass of water or item.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Voice',
+    ),
+    const PromptItem(
+      id: 'd_m_17',
+      text: 'Keep a totally serious poker face while every player in the room tries to make you laugh for 30 seconds.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Challenge',
+    ),
+    const PromptItem(
+      id: 'd_m_18',
+      text: 'Talk without closing your mouth at all for the next round.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Voice',
+    ),
+    const PromptItem(
+      id: 'd_m_19',
+      text: 'Do a 30-second fitness trainer routine and command the other players to follow along.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Physical',
+    ),
+    const PromptItem(
+      id: 'd_m_20',
+      text: 'High-five every player in the room while giving each person a unique ridiculous compliment.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.mild,
+      category: 'Social',
+    ),
 
     // --- DARES: SPICY ---
     const PromptItem(
@@ -245,18 +581,116 @@ class PromptRepository {
       intensity: IntensityLevel.spicy,
       category: 'Performance',
     ),
+    const PromptItem(
+      id: 'd_s_7',
+      text: 'Let the group craft a funny 5-word text and send it to your most recent contact.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Prank',
+    ),
+    const PromptItem(
+      id: 'd_s_8',
+      text: 'Do 20 pushups or wall-sits while maintaining eye contact with the player on your left.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Physical',
+    ),
+    const PromptItem(
+      id: 'd_s_9',
+      text: 'Wear your shirt inside out and backwards for the rest of the game session!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Styling',
+    ),
+    const PromptItem(
+      id: 'd_s_10',
+      text: 'Speak only in rhymes for your next 3 responses in the game!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Voice',
+    ),
+    const PromptItem(
+      id: 'd_s_11',
+      text: 'Allow the player to your right to browse your emoji history out loud to the room.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Exposed',
+    ),
+    const PromptItem(
+      id: 'd_s_12',
+      text: 'Stand on one leg like a flamingo for the next 2 full turns without losing balance.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Endurance',
+    ),
+    const PromptItem(
+      id: 'd_s_13',
+      text: 'Reenact a famous movie scene using only dramatic hand gestures and animal sounds.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Acting',
+    ),
+    const PromptItem(
+      id: 'd_s_14',
+      text: 'Send a message to your best friend saying: "I need to tell you something crazy..." and don\'t reply for 2 minutes!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Prank',
+    ),
+    const PromptItem(
+      id: 'd_s_15',
+      text: 'Show the group your most embarrassing old photo on your phone or social media archive.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Exposed',
+    ),
+    const PromptItem(
+      id: 'd_s_16',
+      text: 'Let the group pose you like a statue for 1 full round without moving a muscle!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Challenge',
+    ),
+    const PromptItem(
+      id: 'd_s_17',
+      text: 'Do an impression of a cat begging for food for 30 seconds in front of everyone.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Impression',
+    ),
+    const PromptItem(
+      id: 'd_s_18',
+      text: 'Allow the player on your left to choose a new nickname for you that everyone must use for the rest of the game.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Social',
+    ),
+    const PromptItem(
+      id: 'd_s_19',
+      text: 'Text your parents or roommate: "Did you move the secret box?" with no follow-up explanation.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Prank',
+    ),
+    const PromptItem(
+      id: 'd_s_20',
+      text: 'Perform a 30-second slow-motion action movie fight scene by yourself!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.spicy,
+      category: 'Performance',
+    ),
 
     // --- DARES: EXTREME ---
     const PromptItem(
       id: 'd_e_1',
-      text: 'Eat a spoonful of hot sauce or raw mustard without making any reaction or face for 1 full minute!',
+      text: 'Eat a spoonful of hot sauce, mustard, or lemon juice without making any face for 1 full minute!',
       type: PromptType.dare,
       intensity: IntensityLevel.extreme,
       category: 'Taste Test',
     ),
     const PromptItem(
       id: 'd_e_2',
-      text: 'Let the players browse through your camera roll favorites for 30 seconds!',
+      text: 'Let the players browse through your camera roll favorites or hidden folder for 30 seconds!',
       type: PromptType.dare,
       intensity: IntensityLevel.extreme,
       category: 'Exposed',
@@ -275,25 +709,122 @@ class PromptRepository {
       intensity: IntensityLevel.extreme,
       category: 'Prank Call',
     ),
+    const PromptItem(
+      id: 'd_e_5',
+      text: 'Let the group control your phone\'s notification sound or ringtone for the next hour.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Takeover',
+    ),
+    const PromptItem(
+      id: 'd_e_6',
+      text: 'Do a 45-second energetic moonwalk or breakdance in front of everyone while singing.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Performance',
+    ),
+    const PromptItem(
+      id: 'd_e_7',
+      text: 'Call a contact selected by the group and sing "Happy Birthday" to them, even if it\'s not their birthday!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Prank Call',
+    ),
+    const PromptItem(
+      id: 'd_e_8',
+      text: 'Let another player compose a public social media post on your profile and leave it up for 15 minutes.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Takeover',
+    ),
+    const PromptItem(
+      id: 'd_e_9',
+      text: 'Eat a weird food bite created by the group using 3 safe kitchen ingredients mixed together.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Taste Test',
+    ),
+    const PromptItem(
+      id: 'd_e_10',
+      text: 'Put on a blindfold and guess 3 objects handed to you by the other players using only touch.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Challenge',
+    ),
+    const PromptItem(
+      id: 'd_e_11',
+      text: 'Let the group text any single emoji of their choice to your top 3 pinned chats!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Takeover',
+    ),
+    const PromptItem(
+      id: 'd_e_12',
+      text: 'Let the player to your right write a funny word on your forehead with a washable marker.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Styling',
+    ),
+    const PromptItem(
+      id: 'd_e_13',
+      text: 'Call a random business and ask if they hire full-time professional high-fivers.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Prank Call',
+    ),
+    const PromptItem(
+      id: 'd_e_14',
+      text: 'Speak like a Shakespearean actor for the remainder of the game session.',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Voice',
+    ),
+    const PromptItem(
+      id: 'd_e_15',
+      text: 'Do 30 rapid squats while loudly declaring your undying love for every player in the room!',
+      type: PromptType.dare,
+      intensity: IntensityLevel.extreme,
+      category: 'Physical',
+    ),
   ];
 
   static PromptItem getRandomPrompt({
     required PromptType type,
     IntensityLevel intensity = IntensityLevel.spicy,
     List<PromptItem> customPrompts = const [],
+    Iterable<String> excludeIds = const [],
   }) {
-    final combined = [
-      ..._allPrompts.where((p) => p.type == type && (p.intensity == intensity || intensity == IntensityLevel.extreme)),
-      ...customPrompts.where((p) => p.type == type),
+    final excludeSet = excludeIds.toSet();
+
+    // 1. Build initial pool matching requested type and exact intensity + custom prompts
+    final primaryPool = [
+      ..._allPrompts.where((p) => p.type == type && p.intensity == intensity),
+      ...customPrompts.where((p) => p.type == type && p.intensity == intensity),
     ];
 
-    if (combined.isEmpty) {
-      // fallback
-      final fallbackPool = _allPrompts.where((p) => p.type == type).toList();
-      return fallbackPool[_rng.nextInt(fallbackPool.length)];
+    // Filter out already used prompt IDs for the current room
+    final unusedPrimary = primaryPool.where((p) => !excludeSet.contains(p.id)).toList();
+    if (unusedPrimary.isNotEmpty) {
+      return unusedPrimary[_rng.nextInt(unusedPrimary.length)];
     }
 
-    return combined[_rng.nextInt(combined.length)];
+    // 2. If primary intensity is exhausted, try other intensities of the same type (excluding used)
+    final allUnusedSameType = [
+      ..._allPrompts.where((p) => p.type == type),
+      ...customPrompts.where((p) => p.type == type),
+    ].where((p) => !excludeSet.contains(p.id)).toList();
+
+    if (allUnusedSameType.isNotEmpty) {
+      return allUnusedSameType[_rng.nextInt(allUnusedSameType.length)];
+    }
+
+    // 3. Fallback: If all prompts have been used, pick from the primary pool (or full type pool)
+    if (primaryPool.isNotEmpty) {
+      return primaryPool[_rng.nextInt(primaryPool.length)];
+    }
+
+    final fallbackPool = _allPrompts.where((p) => p.type == type).toList();
+    return fallbackPool[_rng.nextInt(fallbackPool.length)];
   }
 
   static List<PromptItem> get allBuiltInPrompts => List.unmodifiable(_allPrompts);
