@@ -3,6 +3,7 @@ import 'dart:math';
 import '../models/game_room_model.dart';
 import '../models/player_model.dart';
 import '../models/prompt_model.dart';
+import '../models/round_history_model.dart';
 import 'game_service.dart';
 import 'prompt_repository.dart';
 
@@ -219,12 +220,22 @@ class LocalSimService implements GameService {
       customPrompts: room.customPrompts,
     );
 
+    final updatedPlayers = Map<String, Player>.from(room.players);
+    final turnId = room.currentTurnPlayerId;
+    if (turnId != null && updatedPlayers.containsKey(turnId)) {
+      final p = updatedPlayers[turnId]!;
+      updatedPlayers[turnId] = type == PromptType.truth
+          ? p.copyWith(truthsChosen: p.truthsChosen + 1)
+          : p.copyWith(daresChosen: p.daresChosen + 1);
+    }
+
     _activeRooms[code] = room.copyWith(
       status: RoomStatus.performing,
       currentTurnType: type,
       currentPrompt: prompt,
       timerRemainingSeconds: room.timerDurationSeconds,
       votes: {},
+      players: updatedPlayers,
     );
     _notify(code);
   }
@@ -263,9 +274,30 @@ class LocalSimService implements GameService {
         ? player.copyWith(score: player.score + 10)
         : player.copyWith(penalties: player.penalties + 1);
 
+    final roundRecord = RoundHistory(
+      roundNumber: room.roundNumber,
+      selectedPlayerId: player.id,
+      selectedPlayerName: player.name,
+      spinTargetAngle: room.spinTargetAngle,
+      spinTimestamp: room.spinTimestamp,
+      choiceType: room.currentTurnType,
+      promptId: room.currentPrompt?.id,
+      promptText: room.currentPrompt?.text,
+      promptCategory: room.currentPrompt?.category,
+      promptIntensity: room.currentPrompt?.intensity,
+      submittedByPlayerName: room.currentPrompt?.submittedByPlayerName,
+      isCompleted: passed,
+      pointsAwarded: passed ? 10 : 0,
+      forfeitsAwarded: passed ? 0 : 1,
+      completedTimestamp: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    final updatedRounds = List<RoundHistory>.from(room.roundsHistory)..add(roundRecord);
+
     _activeRooms[code] = room.copyWith(
       status: RoomStatus.roundSummary,
       players: updatedPlayers,
+      roundsHistory: updatedRounds,
     );
     _notify(code);
   }

@@ -1,11 +1,84 @@
-# 🎡 Truth or Dare • Real-Time Multiplayer Party Game
+<div align="center">
+  <img src="assets/logo.png" alt="Truth or Dare Party Logo" width="180" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);" />
+  
+  # 🎡 Truth or Dare • Multiplayer Party Arena
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.44+-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
-[![Platform](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Windows-blue)](#getting-started)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+  [![Flutter](https://img.shields.io/badge/Flutter-3.44+-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+  [![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
+  [![Platform](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Windows-blue)](#getting-started)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+  
+  *A real-time multiplayer party game with synchronized physics spin-the-wheel, curated truth or dare prompts, and comprehensive Firebase cloud session tracking.*
+</div>
 
-A modern, real-time multiplayer **Truth or Dare** party game built with **Flutter** and **Firebase Cloud Firestore**. Players join custom party lobbies using a unique 6-character room code, customize their avatars, and take turns spinning a synchronized neon roulette wheel!
+---
+
+## 🗄️ Database & Document Architecture (Firebase Cloud Firestore)
+
+The backend is structured into relational document collections and subcollections for live multiplayer gameplay and session history analytics:
+
+```
+cloud_firestore/
+│
+├── 📁 game_rooms/                          # Active game rooms
+│   └── 📄 {roomCode}/                     # Document ID: e.g. "TRUTH-789"
+│       ├── roomCode: string
+│       ├── hostId: string
+│       ├── status: "lobby" | "spinning" | "choosing" | "performing" | "roundSummary" | "ended"
+│       ├── totalPlayers: number           # Active player count
+│       ├── intensityLevel: "mild" | "spicy" | "extreme"
+│       ├── roundNumber: number            # Current round index
+│       ├── currentTurnPlayerId: string    # Player currently selected by the pointer
+│       ├── spinTargetAngle: number        # Synchronized angle in radians
+│       ├── spinTimestamp: timestamp       # Spin start timestamp
+│       ├── createdAt: timestamp           # When room was created
+│       ├── startedAt: timestamp           # When game started
+│       ├── endedAt: timestamp             # When game ended
+│       ├── totalDurationSeconds: number   # Total room active time
+│       │
+│       ├── 📁 players/                    # Subcollection: Joined players & live scores
+│       │   └── 📄 {playerId}/
+│       │       ├── id: string
+│       │       ├── name: string
+│       │       ├── avatarEmoji: string
+│       │       ├── colorValue: number
+│       │       ├── isHost: boolean
+│       │       ├── isReady: boolean
+│       │       ├── score: number          # Total points (+10 per passed prompt)
+│       │       ├── penalties: number      # Forfeit strikes count
+│       │       ├── truthsChosen: number   # How many truths this player selected
+│       │       ├── daresChosen: number    # How many dares this player selected
+│       │       └── joinedTimestamp: timestamp
+│       │
+│       ├── 📁 rounds/                     # Subcollection: Complete history of every round
+│       │   └── 📄 round_{roundNumber}/
+│       │       ├── roundNumber: number
+│       │       ├── selectedPlayerId: string
+│       │       ├── selectedPlayerName: string
+│       │       ├── spinTargetAngle: number
+│       │       ├── spinTimestamp: timestamp
+│       │       ├── choiceType: "truth" | "dare"
+│       │       ├── promptId: string
+│       │       ├── promptText: string     # The exact question/dare asked
+│       │       ├── promptCategory: string
+│       │       ├── promptIntensity: string
+│       │       ├── submittedByPlayerName: string? # If player custom card
+│       │       ├── isCompleted: boolean   # Passed vs Forfeit strike
+│       │       ├── pointsAwarded: number
+│       │       ├── forfeitsAwarded: number
+│       │       └── completedTimestamp: timestamp
+│       │
+│       └── 📁 questions/                  # Subcollection: Custom cards submitted in room
+│           └── 📄 {promptId}/
+│               ├── id: string
+│               ├── text: string
+│               ├── type: "truth" | "dare"
+│               ├── intensity: "mild" | "spicy" | "extreme"
+│               └── submittedByPlayerName: string
+│
+└── 📁 game_sessions_archive/               # Immutable archive of ended party sessions
+    └── 📄 {roomCode}/                     # Complete room record with duration & leaderboard
+```
 
 ---
 
@@ -18,9 +91,9 @@ A modern, real-time multiplayer **Truth or Dare** party game built with **Flutte
   - One-click `+ Add Bot` button to test multiplayer solo immediately.
 
 - 🎡 **Synchronized Physics Spin-the-Wheel**
-  - Dynamic CustomPainter roulette wheel divided into slices based on active players in the room.
+  - Dynamic CustomPainter roulette wheel divided into slices based on active players.
   - High-precision pointer needle at 12 o'clock—the player on whose slice the arrow stops is declared the active turn player.
-  - Synchronized wheel spin across all devices via Firestore so all players watch the wheel spin and land simultaneously!
+  - Synchronized wheel spin across all devices via Firestore.
 
 - 💭 **Truth or Dare Decision Stage**
   - Active player chooses **TRUTH 💭** or **DARE 🔥**.
@@ -32,36 +105,19 @@ A modern, real-time multiplayer **Truth or Dare** party game built with **Flutte
 - ✍️ **Custom Cards Creator**
   - Players can submit their own custom Truths and Dares to the room's live deck during the lobby.
 
-- ⏱️ **Live Countdown Timer**
-  - Visual circular countdown timer with haptic alerts for completing the challenge.
-
 - ⚡ **Decent Forfeit Strike System**
   - Family-friendly and decent party rules:
     - **`COMPLETED! (+10 PTS) 🎉`** with confetti celebration!
     - **`PASS / TAKE FORFEIT STRIKE (+1) ⚡`** for skipping or failing a dare.
 
-- 🏆 **Real-Time Scoreboard**
+- 🏆 **Light Yellow & Orange Mix Scoreboard**
+  - Radiant score modal with warm yellow and orange sunset gradients.
   - Live ranking leaderboard showing player points (★) and forfeit strikes (⚡).
 
 - 🚪 **Quit & End Game Controls**
   - In-game exit modal:
     - **Host:** Option to "Return to Lobby" (bringing all players back) or "Quit Game".
     - **Players:** Clean option to exit back to the Home screen.
-
-- ⚡ **Dual-Mode Backend Architecture**
-  - **Firebase Firestore:** Full production real-time sync across devices over the internet.
-  - **Local Reactive Simulator (`LocalSimService`):** Automatic fallback allowing instant testing and offline play without requiring Firebase credentials.
-
----
-
-## 🛠️ Tech Stack
-
-- **Framework:** [Flutter](https://flutter.dev) (Dart 3.x)
-- **Backend:** [Firebase Cloud Firestore](https://firebase.google.com/docs/firestore) & [Firebase Core](https://firebase.google.com)
-- **State & Real-Time Sync:** Streams & Reactive Listeners
-- **Animations & Effects:** Flutter Canvas CustomPainter, [Confetti](https://pub.dev/packages/confetti)
-- **Typography:** [Google Fonts (Outfit)](https://fonts.google.com/specimen/Outfit)
-- **Local Cache:** [shared_preferences](https://pub.dev/packages/shared_preferences)
 
 ---
 
@@ -97,63 +153,26 @@ flutter run -d windows
 
 ---
 
-## 🔥 Firebase Setup (Optional for Online Multi-Device Play)
+## 🔒 Firestore Security Rules
 
-The app is pre-configured with `firebase_options.dart`. To link your own Firebase project:
-
-1. Install Firebase CLI & FlutterFire CLI:
-   ```bash
-   npm install -g firebase-tools
-   dart pub global activate flutterfire_cli
-   ```
-2. Log in and configure:
-   ```bash
-   firebase login
-   flutterfire configure --project=YOUR_PROJECT_ID
-   ```
-3. Set your Firestore Security Rules in the Firebase Console:
-   ```javascript
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /rooms/{roomCode} {
-         allow read, write: if true;
-       }
-     }
-   }
-   ```
-
----
-
-## 📁 Project Structure
-
-```
-lib/
-├── main.dart                      # App entry point & Firebase initialization
-├── firebase_options.dart          # Auto-generated Firebase client credentials
-├── models/
-│   ├── player_model.dart          # Player profile & score model
-│   ├── game_room_model.dart       # Room state, sync flags & status enums
-│   └── prompt_model.dart          # Truth & Dare challenge model
-├── services/
-│   ├── game_service.dart          # Abstract interface for game rooms
-│   ├── firebase_game_service.dart # Real-time Cloud Firestore implementation
-│   ├── local_sim_service.dart     # In-memory reactive simulator fallback
-│   ├── game_manager.dart          # Facade managing player identity & backend
-│   └── prompt_repository.dart     # 150+ categorized truths & dares database
-├── theme/
-│   └── game_theme.dart            # Cyber party styling, colors & decorations
-├── widgets/
-│   ├── spin_wheel_widget.dart     # CustomPainter physics-based roulette wheel
-│   ├── countdown_timer_widget.dart# Circular timer with warning haptics
-│   ├── player_avatar.dart         # Player badge with crown & status
-│   ├── neon_button.dart           # Animated tactile neon button
-│   └── firebase_guide_modal.dart  # In-app setup instructions modal
-└── screens/
-    ├── home_screen.dart           # Profile setup, create & join room
-    ├── lobby_screen.dart          # Live waiting room, room code card & host controls
-    ├── game_arena_screen.dart     # Main spin wheel, challenge & scoreboard arena
-    └── add_prompt_dialog.dart     # Custom card creator modal
+In your Firebase Console ➜ **Firestore Database** ➜ **Rules**:
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allows full access to active game rooms and archives
+    match /game_rooms/{roomCode} {
+      allow read, write: if true;
+      
+      match /{allSubcollections=**} {
+        allow read, write: if true;
+      }
+    }
+    match /game_sessions_archive/{roomCode} {
+      allow read, write: if true;
+    }
+  }
+}
 ```
 
 ---

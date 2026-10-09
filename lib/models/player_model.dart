@@ -6,7 +6,10 @@ class Player {
   final bool isHost;
   final bool isReady;
   final int score;
-  final int penalties;
+  final int penalties; // Forfeit strikes
+  final int truthsChosen;
+  final int daresChosen;
+  final int joinedTimestamp;
 
   const Player({
     required this.id,
@@ -17,6 +20,9 @@ class Player {
     this.isReady = false,
     this.score = 0,
     this.penalties = 0,
+    this.truthsChosen = 0,
+    this.daresChosen = 0,
+    this.joinedTimestamp = 0,
   });
 
   Player copyWith({
@@ -28,6 +34,9 @@ class Player {
     bool? isReady,
     int? score,
     int? penalties,
+    int? truthsChosen,
+    int? daresChosen,
+    int? joinedTimestamp,
   }) {
     return Player(
       id: id ?? this.id,
@@ -38,6 +47,9 @@ class Player {
       isReady: isReady ?? this.isReady,
       score: score ?? this.score,
       penalties: penalties ?? this.penalties,
+      truthsChosen: truthsChosen ?? this.truthsChosen,
+      daresChosen: daresChosen ?? this.daresChosen,
+      joinedTimestamp: joinedTimestamp ?? this.joinedTimestamp,
     );
   }
 
@@ -51,6 +63,9 @@ class Player {
       'isReady': isReady,
       'score': score,
       'penalties': penalties,
+      'truthsChosen': truthsChosen,
+      'daresChosen': daresChosen,
+      'joinedTimestamp': joinedTimestamp,
     };
   }
 
@@ -64,6 +79,9 @@ class Player {
       isReady: map['isReady'] as bool? ?? false,
       score: map['score'] as int? ?? 0,
       penalties: map['penalties'] as int? ?? 0,
+      truthsChosen: (map['truthsChosen'] as num?)?.toInt() ?? 0,
+      daresChosen: (map['daresChosen'] as num?)?.toInt() ?? 0,
+      joinedTimestamp: (map['joinedTimestamp'] as num?)?.toInt() ?? 0,
     );
   }
 }

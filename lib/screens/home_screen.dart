@@ -398,6 +398,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   },
                   child: Column(
                     children: [
+                      Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: GameTheme.primaryPurple.withValues(alpha: 0.5), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: GameTheme.royalPurple.withValues(alpha: 0.4),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          child: Image.asset(
+                            'assets/logo.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Center(
+                              child: Text('🎡', style: TextStyle(fontSize: 48)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
                       RichText(
                         textAlign: TextAlign.center,
                         text: const TextSpan(
