@@ -5,7 +5,6 @@ import '../models/player_model.dart';
 import '../models/prompt_model.dart';
 import '../services/game_manager.dart';
 import '../theme/game_theme.dart';
-import '../widgets/countdown_timer_widget.dart';
 import '../widgets/neon_button.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/spin_wheel_widget.dart';
@@ -27,6 +26,11 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
   late ConfettiController _confettiController;
   Player? _locallyLandedPlayer;
   bool _navigatingBack = false;
+
+  // Wager & Reaction state
+  double _wagerAmount = 40;
+  String? _selectedWagerOption;
+  String? _selectedRating;
 
   @override
   void initState() {
@@ -77,245 +81,24 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
   void _nextRound() async {
     setState(() {
       _locallyLandedPlayer = null;
+      _selectedWagerOption = null;
+      _selectedRating = null;
     });
     await GameManager().service.nextRound(roomCode: widget.roomCode);
   }
 
-  void _confirmQuitGame(bool isHost) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.white12),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              isHost ? Icons.settings_power_rounded : Icons.logout_rounded,
-              color: GameTheme.neonPink,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              isHost ? 'End Game or Leave?' : 'Quit Game?',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-          ],
-        ),
-        content: Text(
-          isHost
-              ? 'As the host, you can return all players back to the lobby or leave the party.'
-              : 'Are you sure you want to quit? You will leave this party room.',
-          style: const TextStyle(color: GameTheme.textSecondary, fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
-          ),
-          if (isHost)
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await GameManager().service.returnToLobby(roomCode: widget.roomCode);
-              },
-              child: const Text(
-                'Back to Lobby',
-                style: TextStyle(color: GameTheme.neonCyan, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: GameTheme.neonPink,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final currentP = GameManager().currentPlayer;
-              if (currentP != null) {
-                await GameManager().service.leaveRoom(
-                      roomCode: widget.roomCode,
-                      playerId: currentP.id,
-                    );
-              }
-              GameManager().setCurrentRoomCode(null);
-              if (mounted) {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              }
-            },
-            child: const Text('Quit Game', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showScoreboard(List<Player> players) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: GameTheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-      ),
-      builder: (_) {
-        final sorted = List<Player>.from(players)
-          ..sort((a, b) => b.score.compareTo(a.score));
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-          decoration: const BoxDecoration(
-            color: GameTheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-            border: Border(
-              top: BorderSide(color: GameTheme.scoreAmber, width: 2),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with warm yellow & orange glow
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: GameTheme.scoreGradient,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: GameTheme.scoreOrange.withValues(alpha: 0.5),
-                          blurRadius: 12,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.emoji_events_rounded, color: Colors.black87, size: 22),
-                  ),
-                  const SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'LEADERBOARD & SCORES',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.5,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        'Live player points & forfeit strikes',
-                        style: TextStyle(fontSize: 11, color: GameTheme.scoreLightYellow),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: sorted.length,
-                  separatorBuilder: (context, index) => const Divider(color: Colors.white10),
-                  itemBuilder: (context, index) {
-                    final p = sorted[index];
-                    final isFirst = index == 0 && p.score > 0;
-                    final rankText = index == 0
-                        ? '🥇'
-                        : index == 1
-                            ? '🥈'
-                            : index == 2
-                                ? '🥉'
-                                : '#${index + 1}';
-
-                    return Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                      decoration: isFirst
-                          ? BoxDecoration(
-                              color: GameTheme.scoreOrange.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: GameTheme.scoreAmber.withValues(alpha: 0.4)),
-                            )
-                          : null,
-                      child: Row(
-                        children: [
-                          Text(rankText, style: const TextStyle(fontSize: 18)),
-                          const SizedBox(width: 10),
-                          PlayerAvatar(player: p, size: 38, showName: false),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              p.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          // Light Yellow & Orange Mix Score Badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFFFEF08A), // Light yellow
-                                  Color(0xFFFBBF24), // Golden amber
-                                  Color(0xFFF97316), // Warm orange
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: GameTheme.scoreOrange.withValues(alpha: 0.4),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              '★ ${p.score} pts',
-                              style: const TextStyle(
-                                color: Color(0xFF451A03), // Deep warm brown for crisp contrast on yellow/orange
-                                fontWeight: FontWeight.w900,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Decent Forfeits indicator
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: GameTheme.surfaceElevated,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white12),
-                            ),
-                            child: Text(
-                              '⚡ ${p.penalties}',
-                              style: const TextStyle(
-                                color: GameTheme.scoreLightYellow,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  void _leaveRoom() async {
+    final currentP = GameManager().currentPlayer;
+    if (currentP != null) {
+      await GameManager().service.leaveRoom(
+            roomCode: widget.roomCode,
+            playerId: currentP.id,
+          );
+    }
+    GameManager().setCurrentRoomCode(null);
+    if (mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
@@ -325,11 +108,18 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          // Trigger confirmation dialog
-        }
+        if (!didPop) _leaveRoom();
       },
       child: Scaffold(
+        backgroundColor: GameTheme.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+            onPressed: _leaveRoom,
+          ),
+        ),
         body: Stack(
           children: [
             SafeArea(
@@ -338,13 +128,12 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || snapshot.data == null) {
                     return const Center(
-                      child: CircularProgressIndicator(color: GameTheme.neonPurple),
+                      child: CircularProgressIndicator(color: GameTheme.primaryPurple),
                     );
                   }
 
                   final room = snapshot.data!;
 
-                  // If host changed status back to lobby, return everyone to LobbyScreen
                   if (room.status == RoomStatus.lobby && !_navigatingBack) {
                     _navigatingBack = true;
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -360,36 +149,37 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                   final isHost = currentP?.id == room.hostId;
                   final activePlayer = _locallyLandedPlayer ?? room.currentTurnPlayer;
                   final isMyTurn = currentP?.id == activePlayer?.id;
-                  final isTurnPlayerBot = activePlayer != null && activePlayer.id.startsWith('bot_');
 
-                  return Column(
-                    children: [
-                      // Top Clean App Bar
-                      _buildHeader(room, isHost),
-
-                      // Main Content Area
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          child: Column(
-                            children: [
-                              if (room.currentPrompt == null)
-                                _buildSpinStage(room, isHost, activePlayer, isMyTurn)
-                              else if (room.status == RoomStatus.performing)
-                                _buildPerformingStage(room, activePlayer, isMyTurn, isTurnPlayerBot, isHost)
-                              else if (room.status == RoomStatus.roundSummary)
-                                _buildSummaryStage(room),
-                            ],
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (room.status == RoomStatus.spinning || room.currentPrompt == null)
+                                  _buildWheelStage(room, isHost, activePlayer)
+                                else if (room.status == RoomStatus.performing && room.currentPrompt?.type == PromptType.truth)
+                                  _buildTruthStage(room, activePlayer, isMyTurn)
+                                else if (room.status == RoomStatus.performing && room.currentPrompt?.type == PromptType.dare)
+                                  _buildDareStage(room, activePlayer, isMyTurn)
+                                else if (room.status == RoomStatus.roundSummary)
+                                  _buildRateAndScoreStage(room, activePlayer),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               ),
             ),
 
-            // Confetti Layer
+            // Confetti Overlay
             Align(
               alignment: Alignment.topCenter,
               child: ConfettiWidget(
@@ -398,10 +188,9 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
                 shouldLoop: false,
                 colors: const [
                   GameTheme.neonPink,
-                  GameTheme.neonCyan,
+                  GameTheme.neonGreen,
                   GameTheme.neonAmber,
-                  GameTheme.neonPurple,
-                  Colors.white,
+                  GameTheme.primaryPurple,
                 ],
               ),
             ),
@@ -411,413 +200,555 @@ class _GameArenaScreenState extends State<GameArenaScreen> {
     );
   }
 
-  Widget _buildHeader(GameRoom room, bool isHost) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: const BoxDecoration(
-        color: GameTheme.surface,
-        border: Border(bottom: BorderSide(color: Colors.white10)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // --- STAGE 1 & 2: WHEEL / VOTE (PDF Page 2 & Page 3) ---
+  Widget _buildWheelStage(GameRoom room, bool isHost, Player? activePlayer) {
+    final showVoteStage = activePlayer != null;
+
+    if (showVoteStage) {
+      // PDF Page 3: Step 2 Vote
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: GameTheme.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'ROUND ${room.roundNumber}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: GameTheme.neonPurple,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '#${room.roomCode}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white54,
-                ),
-              ),
-            ],
-          ),
+          GameTheme.buildStepBadge('2', 'Vote'),
+          const SizedBox(height: 36),
 
-          Row(
-            children: [
-              // Scoreboard Button
-              IconButton(
-                icon: const Icon(Icons.leaderboard_rounded, color: GameTheme.neonAmber, size: 22),
-                tooltip: 'Scoreboard',
-                onPressed: () => _showScoreboard(room.playerList),
-              ),
-
-              // End Game / Quit Button
-              IconButton(
-                icon: const Icon(Icons.logout_rounded, color: GameTheme.neonPink, size: 22),
-                tooltip: isHost ? 'End Game / Lobby' : 'Quit Game',
-                onPressed: () => _confirmQuitGame(isHost),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSpinStage(
-    GameRoom room,
-    bool isHost,
-    Player? activePlayer,
-    bool isMyTurn,
-  ) {
-    return Column(
-      children: [
-        const SizedBox(height: 6),
-
-        if (activePlayer == null) ...[
-          const Text(
-            'SPIN THE WHEEL',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2,
-              color: GameTheme.neonCyan,
-            ),
-          ),
-          const SizedBox(height: 2),
-          const Text(
-            'Tap the center button to choose a player!',
-            style: TextStyle(fontSize: 12, color: GameTheme.textSecondary),
-          ),
-        ] else ...[
-          // Clean Player Turn Banner
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: GameTheme.surfaceElevated,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: GameTheme.neonPurple.withValues(alpha: 0.6)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+          Center(
+            child: Column(
               children: [
-                Text(activePlayer.avatarEmoji, style: const TextStyle(fontSize: 24)),
-                const SizedBox(width: 10),
+                PlayerAvatar(
+                  player: activePlayer,
+                  size: 80,
+                  showName: false,
+                ),
+                const SizedBox(height: 16),
                 Text(
-                  '👉 It is ${activePlayer.name}\'s Turn!',
+                  '${activePlayer.name} was picked',
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
-
-        const SizedBox(height: 16),
-
-        // Animated Roulette Wheel
-        SpinWheelWidget(
-          players: room.playerList,
-          isHost: isHost,
-          targetAngle: room.spinTargetAngle,
-          spinTimestamp: room.spinTimestamp,
-          onSpinTriggered: (chosen, angle) => _onSpinTriggered(chosen, angle),
-          onSpinLanded: (landed) => _onSpinLanded(landed),
-        ),
-
-        const SizedBox(height: 20),
-
-        // Turn Choice Buttons (Appear when the wheel has selected a player)
-        if (activePlayer != null) ...[
-          Text(
-            isMyTurn
-                ? 'Pick Truth or Dare:'
-                : 'Waiting for ${activePlayer.name} to choose...',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.white70,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: NeonButton(
-                  text: 'TRUTH 💭',
-                  primaryColor: GameTheme.neonCyan,
-                  secondaryColor: const Color(0xFF0284C7),
-                  onPressed: (isMyTurn || isHost)
-                      ? () => _selectChoice(PromptType.truth)
-                      : null,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: NeonButton(
-                  text: 'DARE 🔥',
-                  primaryColor: GameTheme.neonPink,
-                  secondaryColor: const Color(0xFFE11D48),
-                  onPressed: (isMyTurn || isHost)
-                      ? () => _selectChoice(PromptType.dare)
-                      : null,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildPerformingStage(
-    GameRoom room,
-    Player? activePlayer,
-    bool isMyTurn,
-    bool isTurnPlayerBot,
-    bool isHost,
-  ) {
-    final prompt = room.currentPrompt!;
-    final isDare = prompt.type == PromptType.dare;
-    final accentColor = isDare ? GameTheme.neonPink : GameTheme.neonCyan;
-
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-
-        if (activePlayer != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              PlayerAvatar(player: activePlayer, size: 40, showName: false),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activePlayer.name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                const SizedBox(height: 6),
+                const Text(
+                  'Vote for their round',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: GameTheme.textSecondary,
                   ),
-                  Text(
-                    isDare ? 'Facing the Dare' : 'Answering the Truth',
-                    style: TextStyle(fontSize: 12, color: accentColor, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-        const SizedBox(height: 16),
-
-        // Countdown Timer
-        CountdownTimerWidget(
-          totalSeconds: room.timerDurationSeconds,
-          onTimerExpired: () {},
-        ),
-
-        const SizedBox(height: 16),
-
-        // Clean Prompt Card
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            color: GameTheme.surfaceElevated,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: accentColor.withValues(alpha: 0.5), width: 1.5),
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      isDare ? '🔥 DARE' : '💭 TRUTH',
-                      style: TextStyle(
-                        color: accentColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      prompt.intensity.name.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              Text(
-                prompt.text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1.4,
                 ),
-              ),
+                const SizedBox(height: 36),
 
-              if (prompt.submittedByPlayerName != null) ...[
-                const SizedBox(height: 14),
-                Text(
-                  'Card created by: ${prompt.submittedByPlayerName}',
-                  style: const TextStyle(fontSize: 11, color: Colors.white38),
-                ),
-              ],
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 22),
-
-        // Clean Decent Action Buttons (Completed vs Forfeit)
-        if (isMyTurn || isHost || isTurnPlayerBot) ...[
-          NeonButton(
-            text: 'COMPLETED! (+10 PTS) 🎉',
-            icon: Icons.check_circle_outline,
-            primaryColor: GameTheme.neonGreen,
-            secondaryColor: const Color(0xFF059669),
-            onPressed: () => _completeTurn(true),
-          ),
-          const SizedBox(height: 10),
-          NeonButton(
-            text: 'PASS / TAKE FORFEIT STRIKE (+1) ⚡',
-            icon: Icons.flash_on_rounded,
-            primaryColor: GameTheme.neonAmber,
-            secondaryColor: const Color(0xFFD97706),
-            onPressed: () => _completeTurn(false),
-          ),
-        ] else ...[
-          const Text(
-            'Waiting for player to complete their challenge...',
-            style: TextStyle(color: GameTheme.textSecondary, fontSize: 13),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildSummaryStage(GameRoom room) {
-    final activePlayer = room.currentTurnPlayer;
-
-    return Column(
-      children: [
-        const SizedBox(height: 24),
-
-        Container(
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                GameTheme.surfaceElevated,
-                Color.alphaBlend(GameTheme.scoreOrange.withValues(alpha: 0.15), GameTheme.surfaceElevated),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: GameTheme.scoreAmber.withValues(alpha: 0.5), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: GameTheme.scoreOrange.withValues(alpha: 0.2),
-                blurRadius: 18,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              const Text('🏆', style: TextStyle(fontSize: 44)),
-              const SizedBox(height: 8),
-              Text(
-                'Round ${room.roundNumber} Finished!',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (activePlayer != null)
+                // Choice Cards: Truth & Dare (PDF Page 3)
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        gradient: GameTheme.scoreGradient,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '★ ${activePlayer.score} Points',
-                        style: const TextStyle(
-                          color: Color(0xFF451A03),
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectChoice(PromptType.truth),
+                        child: Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: GameTheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: GameTheme.neonGreen, width: 1.5),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Truth',
+                              style: TextStyle(
+                                color: GameTheme.neonGreen,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: GameTheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: GameTheme.scoreAmber.withValues(alpha: 0.4)),
-                      ),
-                      child: Text(
-                        '⚡ ${activePlayer.penalties} Forfeits',
-                        style: const TextStyle(
-                          color: GameTheme.scoreLightYellow,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.5,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectChoice(PromptType.dare),
+                        child: Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: GameTheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: GameTheme.neonPink, width: 1.5),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Dare',
+                              style: TextStyle(
+                                color: GameTheme.neonPink,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 32),
+                Text(
+                  '${room.playerList.length > 2 ? room.playerList.length - 1 : 1} of ${room.playerList.length} players voted',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: GameTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // PDF Page 2: Step 1 Wheel
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GameTheme.buildStepBadge('1', 'Wheel'),
+        const SizedBox(height: 30),
+
+        Center(
+          child: Column(
+            children: [
+              SpinWheelWidget(
+                players: room.playerList,
+                isHost: isHost,
+                targetAngle: room.spinTargetAngle,
+                spinTimestamp: room.spinTimestamp,
+                onSpinTriggered: (chosen, angle) => _onSpinTriggered(chosen, angle),
+                onSpinLanded: (landed) => _onSpinLanded(landed),
+              ),
+
+              const SizedBox(height: 36),
+
+              const Text(
+                'Waiting for host to spin...',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: GameTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- STAGE 4 TRUTH: WAGER (PDF Page 4) ---
+  Widget _buildTruthStage(GameRoom room, Player? activePlayer, bool isMyTurn) {
+    final prompt = room.currentPrompt!;
+    final name = activePlayer?.name ?? 'Player';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GameTheme.buildStepBadge('4', 'Truth'),
+        const SizedBox(height: 24),
+
+        // Prompt Card (PDF Page 4)
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: GameTheme.cardBox(radius: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$name is answering',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: GameTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '"${prompt.text}"',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.4,
+                ),
+              ),
             ],
           ),
         ),
 
         const SizedBox(height: 24),
 
+        // Wager Section (PDF Page 4)
+        Text(
+          'Your wager: is $name telling the truth?',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedWagerOption = 'Truth'),
+                child: Container(
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: _selectedWagerOption == 'Truth'
+                        ? GameTheme.neonGreen.withValues(alpha: 0.2)
+                        : GameTheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: GameTheme.neonGreen,
+                      width: _selectedWagerOption == 'Truth' ? 2 : 1.2,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Truth',
+                      style: TextStyle(
+                        color: GameTheme.neonGreen,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedWagerOption = 'Half-Truth'),
+                child: Container(
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: _selectedWagerOption == 'Half-Truth'
+                        ? GameTheme.neonAmber.withValues(alpha: 0.2)
+                        : GameTheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: GameTheme.neonAmber,
+                      width: _selectedWagerOption == 'Half-Truth' ? 2 : 1.2,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Half-Truth',
+                      style: TextStyle(
+                        color: GameTheme.neonAmber,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        // Slider (PDF Page 4)
+        Row(
+          children: [
+            const Text(
+              'Wager',
+              style: TextStyle(
+                fontSize: 13,
+                color: GameTheme.textSecondary,
+              ),
+            ),
+            Expanded(
+              child: SliderTheme(
+                data: SliderThemeData(
+                  activeTrackColor: GameTheme.neonLavender,
+                  inactiveTrackColor: GameTheme.surfaceElevated,
+                  thumbColor: GameTheme.neonLavender,
+                  overlayColor: GameTheme.neonLavender.withValues(alpha: 0.2),
+                  trackHeight: 6,
+                ),
+                child: Slider(
+                  value: _wagerAmount,
+                  min: 10,
+                  max: 100,
+                  divisions: 9,
+                  onChanged: (val) => setState(() => _wagerAmount = val),
+                ),
+              ),
+            ),
+            Text(
+              '${_wagerAmount.toInt()} pts',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: GameTheme.neonLavender,
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 36),
+
         NeonButton(
-          text: 'NEXT ROUND 🎡',
-          icon: Icons.arrow_forward_rounded,
-          primaryColor: GameTheme.neonPurple,
+          text: 'Lock In Wager',
+          primaryColor: GameTheme.primaryPurple,
+          onPressed: () => _completeTurn(true),
+        ),
+      ],
+    );
+  }
+
+  // --- STAGE 4 DARE (PDF Page 5) ---
+  Widget _buildDareStage(GameRoom room, Player? activePlayer, bool isMyTurn) {
+    final prompt = room.currentPrompt!;
+    final name = activePlayer?.name ?? 'Player';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GameTheme.buildStepBadge('4', 'Dare'),
+        const SizedBox(height: 24),
+
+        // Prompt Card with Pink Border (PDF Page 5)
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: GameTheme.cardBox(
+            borderColor: GameTheme.neonPink,
+            radius: 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$name\'s dare',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: GameTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '"${prompt.text}"',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        Text(
+          '$name is completing this now',
+          style: const TextStyle(
+            fontSize: 14,
+            color: GameTheme.textSecondary,
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Reaction Bar (PDF Page 5)
+        Row(
+          children: [
+            const Text('😂', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 12),
+            const Text('🔥', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 12),
+            const Text('👏', style: TextStyle(fontSize: 22)),
+            const Spacer(),
+            const Text(
+              'react',
+              style: TextStyle(
+                fontSize: 13,
+                color: GameTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 48),
+
+        // Bottom Action Buttons (PDF Page 5)
+        NeonButton(
+          text: 'Mark Complete',
+          primaryColor: GameTheme.neonPink,
+          onPressed: () => _completeTurn(true),
+        ),
+
+        const SizedBox(height: 12),
+
+        NeonButton(
+          text: 'Skip (costs points)',
+          isOutline: true,
+          onPressed: () => _completeTurn(false),
+        ),
+      ],
+    );
+  }
+
+  // --- STAGE 5 RATE & SCORE (PDF Page 6) ---
+  Widget _buildRateAndScoreStage(GameRoom room, Player? activePlayer) {
+    final name = activePlayer?.name ?? 'Player';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GameTheme.buildStepBadge('5', 'Rate & Score'),
+        const SizedBox(height: 24),
+
+        Text(
+          'How was $name\'s answer?',
+          style: const TextStyle(
+            fontSize: 14,
+            color: GameTheme.textSecondary,
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        Row(
+          children: [
+            Expanded(
+              child: NeonButton(
+                text: 'Good',
+                primaryColor: GameTheme.neonGreen,
+                isOutline: _selectedRating == 'Weak',
+                onPressed: () => setState(() => _selectedRating = 'Good'),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: NeonButton(
+                text: 'Weak',
+                primaryColor: GameTheme.surfaceElevated,
+                isOutline: _selectedRating != 'Weak',
+                onPressed: () => setState(() => _selectedRating = 'Weak'),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 32),
+
+        // LEADERBOARD Card (PDF Page 6)
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: GameTheme.cardBox(radius: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'LEADERBOARD',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                  color: GameTheme.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: room.playerList.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final p = room.playerList[index];
+                  final isMe = p.id == GameManager().currentPlayer?.id;
+                  final initial = p.name.isNotEmpty ? p.name[0].toUpperCase() : 'P';
+                  final color = Color(p.colorValue);
+
+                  return Row(
+                    children: [
+                      Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: GameTheme.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: color,
+                        ),
+                        child: Center(
+                          child: Text(
+                            initial,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          isMe ? '${p.name} (You)' : p.name,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '🔥${p.penalties}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: GameTheme.neonAmber,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${p.score}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 36),
+
+        NeonButton(
+          text: 'Next Round',
+          primaryColor: GameTheme.primaryPurple,
           onPressed: _nextRound,
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/game_theme.dart';
 
 class NeonButton extends StatefulWidget {
   final String text;
@@ -6,20 +7,24 @@ class NeonButton extends StatefulWidget {
   final IconData? icon;
   final Color primaryColor;
   final Color? secondaryColor;
+  final Color? textColor;
   final bool isFullWidth;
   final double height;
   final bool isLoading;
+  final bool isOutline;
 
   const NeonButton({
     super.key,
     required this.text,
     this.onPressed,
     this.icon,
-    this.primaryColor = const Color(0xFF8B5CF6),
+    this.primaryColor = const Color(0xFF9D84F6),
     this.secondaryColor,
+    this.textColor,
     this.isFullWidth = true,
-    this.height = 54,
+    this.height = 52,
     this.isLoading = false,
+    this.isOutline = false,
   });
 
   @override
@@ -37,7 +42,7 @@ class _NeonButtonState extends State<NeonButton> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(_controller);
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(_controller);
   }
 
   @override
@@ -48,8 +53,14 @@ class _NeonButtonState extends State<NeonButton> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final effectiveSecondary = widget.secondaryColor ?? widget.primaryColor.withValues(alpha: 0.8);
     final isEnabled = widget.onPressed != null && !widget.isLoading;
+    final effectiveTextColor = widget.textColor ??
+        (widget.isOutline
+            ? Colors.white
+            : (widget.primaryColor == GameTheme.primaryPurple ||
+                    widget.primaryColor == GameTheme.neonGreen
+                ? const Color(0xFF161320)
+                : Colors.black87));
 
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -71,38 +82,27 @@ class _NeonButtonState extends State<NeonButton> with SingleTickerProviderStateM
           width: widget.isFullWidth ? double.infinity : null,
           padding: const EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isEnabled
-                  ? [widget.primaryColor, effectiveSecondary]
-                  : [Colors.grey.shade800, Colors.grey.shade900],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: isEnabled
-                ? [
-                    BoxShadow(
-                      color: widget.primaryColor.withValues(alpha: 0.45),
-                      blurRadius: 18,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [],
-            border: Border.all(
-              color: isEnabled
-                  ? Colors.white.withValues(alpha: 0.25)
-                  : Colors.white10,
-              width: 1.2,
-            ),
+            color: isEnabled
+                ? (widget.isOutline ? GameTheme.surface : widget.primaryColor)
+                : Colors.grey.shade900,
+            borderRadius: BorderRadius.circular(30),
+            border: widget.isOutline
+                ? Border.all(color: Colors.white24, width: 1.2)
+                : Border.all(
+                    color: isEnabled
+                        ? widget.primaryColor
+                        : Colors.transparent,
+                    width: 1,
+                  ),
           ),
           child: Center(
             child: widget.isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 22,
                     height: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(effectiveTextColor),
                     ),
                   )
                 : Row(
@@ -110,16 +110,15 @@ class _NeonButtonState extends State<NeonButton> with SingleTickerProviderStateM
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (widget.icon != null) ...[
-                        Icon(widget.icon, color: Colors.white, size: 20),
-                        const SizedBox(width: 10),
+                        Icon(widget.icon, color: effectiveTextColor, size: 20),
+                        const SizedBox(width: 8),
                       ],
                       Text(
                         widget.text,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: effectiveTextColor,
                           fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],

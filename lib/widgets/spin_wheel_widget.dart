@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/player_model.dart';
-import '../theme/game_theme.dart';
 
 class SpinWheelWidget extends StatefulWidget {
   final List<Player> players;
@@ -39,7 +38,7 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4000),
+      duration: const Duration(milliseconds: 3800),
     );
 
     _animation = Tween<double>(begin: 0, end: 0).animate(
@@ -66,8 +65,10 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
   List<Player> get _effectivePlayers {
     if (widget.players.isEmpty) {
       return [
-        const Player(id: '1', name: 'Player 1', avatarEmoji: '😎', colorValue: 0xFF6366F1),
-        const Player(id: '2', name: 'Player 2', avatarEmoji: '🦄', colorValue: 0xFFEC4899),
+        const Player(id: '1', name: 'laxi', avatarEmoji: 'L', colorValue: 0xFFF59E0B),
+        const Player(id: '2', name: 'max', avatarEmoji: 'M', colorValue: 0xFF10B981),
+        const Player(id: '3', name: 'sam', avatarEmoji: 'S', colorValue: 0xFF9D84F6),
+        const Player(id: '4', name: 'alex', avatarEmoji: 'A', colorValue: 0xFFEE6083),
       ];
     }
     if (widget.players.length == 1) {
@@ -79,9 +80,6 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
   static int getIndexUnderPointer(double rotation, int totalSlices) {
     if (totalSlices <= 0) return 0;
     final sliceAngle = (2 * pi) / totalSlices;
-    // Pointer is stationary at 12 o'clock (3*pi/2 radians).
-    // Canvas angle alpha that ends up at 3*pi/2 after clockwise rotation R:
-    // alpha + R = 3*pi/2  ==> alpha = 3*pi/2 - R.
     double alpha = (3 * pi / 2) - (rotation % (2 * pi));
     while (alpha < 0) {
       alpha += 2 * pi;
@@ -137,10 +135,8 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
     final targetIndex = random.nextInt(players.length);
     final sliceAngle = (2 * pi) / players.length;
 
-    // Center of target slice
     final targetSliceCenter = (targetIndex + 0.5) * sliceAngle;
 
-    // We want targetSliceCenter + rotation = 3*pi/2 (mod 2*pi)
     double neededNorm = (3 * pi / 2) - targetSliceCenter;
     while (neededNorm < 0) {
       neededNorm += 2 * pi;
@@ -153,7 +149,6 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
       forwardDelta += 2 * pi;
     }
 
-    // 5 full spins + forwardDelta
     final finalTargetAngle = _currentRotation + (5 * 2 * pi) + forwardDelta;
 
     _lastHandledTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -172,35 +167,18 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
   @override
   Widget build(BuildContext context) {
     final players = _effectivePlayers;
-    final isSpinning = _animController.isAnimating;
 
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 310,
-            height: 330,
+            width: 290,
+            height: 310,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Clean subtle ambient halo
-                Container(
-                  width: 290,
-                  height: 290,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: GameTheme.neonPurple.withValues(alpha: 0.25),
-                        blurRadius: 28,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Rotating Wheel Canvas
+                // Rotating Wheel Canvas (Matching PDF 4-Color Slices)
                 Transform.rotate(
                   angle: _currentRotation,
                   child: CustomPaint(
@@ -209,58 +187,12 @@ class _SpinWheelWidgetState extends State<SpinWheelWidget>
                   ),
                 ),
 
-                // Top Pointer Arrow (12 o'clock, pointing directly at the top slice)
+                // Pink Triangle Pointer at top center (12 o'clock) matching PDF
                 Positioned(
-                  top: 8,
+                  top: 4,
                   child: CustomPaint(
-                    size: const Size(28, 34),
-                    painter: _CleanPointerPainter(),
-                  ),
-                ),
-
-                // Center Clean Spin Button
-                GestureDetector(
-                  onTap: triggerSpin,
-                  child: Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      border: Border.all(color: Colors.white, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: GameTheme.neonPurple.withValues(alpha: 0.6),
-                          blurRadius: 16,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isSpinning ? Icons.sync : Icons.play_arrow_rounded,
-                            color: Colors.white,
-                            size: 26,
-                          ),
-                          Text(
-                            isSpinning ? 'SPINNING' : 'SPIN',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    size: const Size(20, 16),
+                    painter: _PdfPinkPointerPainter(),
                   ),
                 ),
               ],
@@ -277,6 +209,13 @@ class _WheelPainter extends CustomPainter {
 
   _WheelPainter({required this.players});
 
+  static const List<Color> pdfWheelColors = [
+    Color(0xFFEE6083), // Pink
+    Color(0xFFB197FC), // Purple
+    Color(0xFF4CD9A4), // Green
+    Color(0xFFF59E0B), // Orange
+  ];
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -285,16 +224,14 @@ class _WheelPainter extends CustomPainter {
 
     final paint = Paint()..style = PaintingStyle.fill;
     final borderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
+      ..color = const Color(0xFF13111C)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    // Draw Slices
     for (int i = 0; i < players.length; i++) {
-      final player = players[i];
       final startAngle = i * sliceAngle;
+      paint.color = pdfWheelColors[i % pdfWheelColors.length];
 
-      paint.color = Color(player.colorValue);
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,
@@ -303,7 +240,6 @@ class _WheelPainter extends CustomPainter {
         paint,
       );
 
-      // Slice dividing border
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,
@@ -311,71 +247,14 @@ class _WheelPainter extends CustomPainter {
         true,
         borderPaint,
       );
-
-      // Draw Avatar & Name on the slice
-      canvas.save();
-      final midAngle = startAngle + (sliceAngle / 2);
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(midAngle);
-
-      // Avatar Emoji
-      final emojiPainter = TextPainter(
-        text: TextSpan(
-          text: player.avatarEmoji,
-          style: const TextStyle(fontSize: 22),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      emojiPainter.paint(canvas, Offset(radius * 0.65 - 11, -11));
-
-      // Player Name
-      final nameText = player.name.length > 7
-          ? '${player.name.substring(0, 6)}…'
-          : player.name;
-      final namePainter = TextPainter(
-        text: TextSpan(
-          text: nameText,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            shadows: [
-              Shadow(color: Colors.black54, blurRadius: 4, offset: Offset(1, 1)),
-            ],
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-        maxLines: 1,
-      )..layout(maxWidth: radius * 0.42);
-      namePainter.paint(canvas, Offset(radius * 0.26, -7));
-
-      canvas.restore();
     }
 
-    // Outer rim border
+    // Outer dark border rim matching PDF
     final rimPaint = Paint()
-      ..color = const Color(0xFF1E163B)
-      ..strokeWidth = 8
+      ..color = const Color(0xFF13111C)
+      ..strokeWidth = 6
       ..style = PaintingStyle.stroke;
-    canvas.drawCircle(center, radius - 4, rimPaint);
-
-    final rimHighlight = Paint()
-      ..color = Colors.white.withValues(alpha: 0.25)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    canvas.drawCircle(center, radius - 1, rimHighlight);
-
-    // Rim indicator pegs
-    final pegPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    final pegCount = max(players.length * 2, 10);
-    for (int p = 0; p < pegCount; p++) {
-      final pegAngle = (p * 2 * pi) / pegCount;
-      final pegX = center.dx + (radius - 4) * cos(pegAngle);
-      final pegY = center.dy + (radius - 4) * sin(pegAngle);
-      canvas.drawCircle(Offset(pegX, pegY), 2.5, pegPaint);
-    }
+    canvas.drawCircle(center, radius - 3, rimPaint);
   }
 
   @override
@@ -384,31 +263,20 @@ class _WheelPainter extends CustomPainter {
   }
 }
 
-class _CleanPointerPainter extends CustomPainter {
+class _PdfPinkPointerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final path = Path();
-    path.moveTo(size.width / 2, size.height); // Bottom point pointing down into top slice
+    path.moveTo(size.width / 2, size.height); // Downward tip pointing into wheel
     path.lineTo(size.width, 0); // Top right
     path.lineTo(0, 0); // Top left
     path.close();
 
     final fillPaint = Paint()
-      ..color = const Color(0xFFF43F5E) // Clean coral red pointer
+      ..color = const Color(0xFFEE6083) // Pink accent pointer
       ..style = PaintingStyle.fill;
 
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.4)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-
-    canvas.drawPath(path, shadowPaint);
     canvas.drawPath(path, fillPaint);
-    canvas.drawPath(path, borderPaint);
   }
 
   @override

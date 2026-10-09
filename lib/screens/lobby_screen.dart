@@ -6,7 +6,6 @@ import '../services/game_manager.dart';
 import '../theme/game_theme.dart';
 import '../widgets/neon_button.dart';
 import '../widgets/player_avatar.dart';
-import 'add_prompt_dialog.dart';
 import 'game_arena_screen.dart';
 
 class LobbyScreen extends StatefulWidget {
@@ -23,6 +22,7 @@ class LobbyScreen extends StatefulWidget {
 
 class _LobbyScreenState extends State<LobbyScreen> {
   bool _navigatedToGame = false;
+  bool _showSettings = false;
 
   void _copyRoomCode() {
     Clipboard.setData(ClipboardData(text: widget.roomCode));
@@ -47,19 +47,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
     if (mounted) Navigator.pop(context);
   }
 
-  void _toggleReady(bool currentReady) async {
-    final currentP = GameManager().currentPlayer;
-    if (currentP != null) {
-      await GameManager().service.toggleReady(
-            roomCode: widget.roomCode,
-            playerId: currentP.id,
-            isReady: !currentReady,
-          );
-    }
-  }
-
   void _addBotPlayer() async {
-    const botNames = ['Alex', 'Mia', 'CyberSam', 'Zoe', 'Leo', 'Nova'];
+    const botNames = ['max', 'alex', 'sam', 'zoe', 'leo', 'mia'];
     final name = botNames[DateTime.now().millisecond % botNames.length];
     await GameManager().service.addBotPlayer(
           roomCode: widget.roomCode,
@@ -81,27 +70,22 @@ class _LobbyScreenState extends State<LobbyScreen> {
         if (!didPop) _leaveRoom();
       },
       child: Scaffold(
+        backgroundColor: GameTheme.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
             onPressed: _leaveRoom,
           ),
-          title: const Text(
-            'PARTY LOBBY',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2,
-            ),
-          ),
-          centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(Icons.exit_to_app, color: GameTheme.neonPink),
-              tooltip: 'Leave Room',
-              onPressed: _leaveRoom,
+              icon: Icon(
+                _showSettings ? Icons.tune : Icons.tune_outlined,
+                color: GameTheme.neonLavender,
+              ),
+              tooltip: 'Game Settings',
+              onPressed: () => setState(() => _showSettings = !_showSettings),
             ),
           ],
         ),
@@ -110,7 +94,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
-                child: CircularProgressIndicator(color: GameTheme.neonPurple),
+                child: CircularProgressIndicator(color: GameTheme.primaryPurple),
               );
             }
 
@@ -150,281 +134,171 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
             final isHost = currentP?.id == room.hostId;
             final players = room.playerList;
-            final myPlayer = currentP != null ? room.players[currentP.id] : null;
-            final canStart = isHost && players.length >= 2;
 
             return SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Room Code Hero Card
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                      decoration: GameTheme.glassBox(
-                        borderColor: GameTheme.neonCyan,
-                        radius: 20,
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'ROOM CODE • SHARE WITH FRIENDS',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 2,
-                              color: GameTheme.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                room.roomCode,
-                                style: const TextStyle(
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 6,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              IconButton(
-                                icon: const Icon(Icons.copy, color: GameTheme.neonCyan),
-                                tooltip: 'Copy Room Code',
-                                onPressed: _copyRoomCode,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${players.length} Players in Lobby',
-                            style: const TextStyle(
-                              color: GameTheme.neonGreen,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                    // Header: ROOM CODE + Large Code (PDF Page 1)
+                    const Text(
+                      'ROOM CODE',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
+                        color: GameTheme.textSecondary,
                       ),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    // Players Section Header
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'PLAYERS',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
-                            color: Colors.white70,
+                        Text(
+                          room.roomCode,
+                          style: const TextStyle(
+                            fontSize: 38,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 3,
+                            color: GameTheme.neonLavender,
                           ),
                         ),
-                        // Bot button for easy solo testing
-                        GestureDetector(
-                          onTap: _addBotPlayer,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: GameTheme.surfaceElevated,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: GameTheme.neonPurple.withValues(alpha: 0.5)),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.smart_toy_outlined, size: 14, color: GameTheme.neonPurple),
-                                SizedBox(width: 4),
-                                Text(
-                                  '+ Add Bot',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: GameTheme.neonPurple,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        IconButton(
+                          icon: const Icon(Icons.copy_rounded, color: Colors.white54, size: 22),
+                          onPressed: _copyRoomCode,
+                          tooltip: 'Copy Code',
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 12),
-
-                    // Players Grid
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: GameTheme.surfaceElevated.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.white12),
-                      ),
-                      child: Wrap(
-                        spacing: 20,
-                        runSpacing: 18,
-                        alignment: WrapAlignment.center,
-                        children: players.map((p) {
-                          final isMe = p.id == currentP?.id;
-                          return PlayerAvatar(
-                            player: p,
-                            size: 64,
-                            isHighlighted: isMe,
-                          );
-                        }).toList(),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Host Settings Section
-                    if (isHost) ...[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'HOST SETTINGS',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
-                            color: Colors.white.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Intensity Selector
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: GameTheme.surfaceElevated,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Question Spiciness:',
-                              style: TextStyle(fontSize: 12, color: GameTheme.textSecondary),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                _buildIntensityTab(
-                                  label: 'Mild 😇',
-                                  level: IntensityLevel.mild,
-                                  current: room.intensityLevel,
-                                  color: GameTheme.neonGreen,
-                                ),
-                                const SizedBox(width: 8),
-                                _buildIntensityTab(
-                                  label: 'Spicy 🌶️',
-                                  level: IntensityLevel.spicy,
-                                  current: room.intensityLevel,
-                                  color: GameTheme.neonAmber,
-                                ),
-                                const SizedBox(width: 8),
-                                _buildIntensityTab(
-                                  label: 'Wild ⚡',
-                                  level: IntensityLevel.extreme,
-                                  current: room.intensityLevel,
-                                  color: GameTheme.neonPink,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                    ],
-
-                    // Custom Cards Bar
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: GameTheme.surfaceElevated,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.white10),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.style_outlined, color: GameTheme.neonAmber, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Custom Cards: ${room.customPrompts.length}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              AddPromptDialog.show(
-                                context,
-                                playerName: myPlayer?.name ?? 'Player',
-                                onPromptCreated: (prompt) {
-                                  GameManager().service.addCustomPrompt(
-                                        roomCode: widget.roomCode,
-                                        prompt: prompt,
-                                      );
-                                },
-                              );
-                            },
-                            child: const Text(
-                              '+ Add Card',
-                              style: TextStyle(
-                                color: GameTheme.neonCyan,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
                     const SizedBox(height: 24),
 
-                    // Ready Toggle & Start Game Buttons
-                    if (myPlayer != null && !isHost)
-                      NeonButton(
-                        text: myPlayer.isReady ? 'YOU ARE READY! ✓' : 'READY UP',
-                        icon: myPlayer.isReady ? Icons.check_circle : Icons.radio_button_unchecked,
-                        primaryColor: myPlayer.isReady ? GameTheme.neonGreen : GameTheme.neonPurple,
-                        onPressed: () => _toggleReady(myPlayer.isReady),
-                      ),
-
-                    if (isHost)
-                      Column(
-                        children: [
-                          NeonButton(
-                            text: canStart ? 'START THE PARTY! 🚀' : 'WAITING FOR 2+ PLAYERS',
-                            icon: Icons.play_arrow_rounded,
-                            primaryColor: canStart ? GameTheme.neonPink : Colors.grey.shade800,
-                            secondaryColor: canStart ? GameTheme.neonPurple : null,
-                            onPressed: canStart ? _startGame : null,
-                          ),
-                          if (!canStart) ...[
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Tip: Tap "+ Add Bot" above to test the game right now!',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: GameTheme.neonAmber,
-                                fontWeight: FontWeight.w600,
+                    // Players Card Container (PDF Page 1)
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(20),
+                              decoration: GameTheme.cardBox(radius: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Players (${players.length})',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: GameTheme.textSecondary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      if (isHost)
+                                        GestureDetector(
+                                          onTap: _addBotPlayer,
+                                          child: const Text(
+                                            '+ Add Player',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: GameTheme.primaryPurple,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: players.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 16),
+                                    itemBuilder: (context, index) {
+                                      final p = players[index];
+                                      final isMe = p.id == currentP?.id;
+                                      return PlayerAvatar(
+                                        player: p,
+                                        size: 44,
+                                        isHighlighted: isMe,
+                                        showName: true,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
+
+                            // Optional Host Settings drawer
+                            if (_showSettings && isHost) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(18),
+                                decoration: GameTheme.cardBox(radius: 18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Question Intensity:',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: GameTheme.textSecondary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        _buildIntensityTab(
+                                          label: 'Mild 😇',
+                                          level: IntensityLevel.mild,
+                                          current: room.intensityLevel,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        _buildIntensityTab(
+                                          label: 'Spicy 🌶️',
+                                          level: IntensityLevel.spicy,
+                                          current: room.intensityLevel,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        _buildIntensityTab(
+                                          label: 'Wild ⚡',
+                                          level: IntensityLevel.extreme,
+                                          current: room.intensityLevel,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Bottom Action Buttons (PDF Page 1)
+                    NeonButton(
+                      text: 'Start Game',
+                      primaryColor: GameTheme.primaryPurple,
+                      onPressed: _startGame,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    NeonButton(
+                      text: 'Share Room Code',
+                      isOutline: true,
+                      onPressed: _copyRoomCode,
+                    ),
+
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -439,7 +313,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
     required String label,
     required IntensityLevel level,
     required IntensityLevel current,
-    required Color color,
   }) {
     final selected = current == level;
     return Expanded(
@@ -453,11 +326,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? color.withValues(alpha: 0.25) : Colors.transparent,
+            color: selected ? GameTheme.primaryPurple.withValues(alpha: 0.2) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: selected ? color : Colors.white12,
-              width: selected ? 2 : 1,
+              color: selected ? GameTheme.primaryPurple : Colors.white12,
             ),
           ),
           child: Center(
